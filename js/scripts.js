@@ -1,0 +1,3 @@
+$(function() {
+    $("#chat-container").hide();
+});

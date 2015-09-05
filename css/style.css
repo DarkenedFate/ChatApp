@@ -1,0 +1,77 @@
+.top-3 {
+    margin-top: 3em;
+}
+
+.top-2 {
+    margin-top: 2em;
+}
+
+.top-1 {
+    margin-top: 1em;
+}
+
+body {
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#cb60b3+0,ad1283+50,de47ac+100;Pink+3D */
+    background: #2c539e; /* Old browsers */
+    background: -moz-linear-gradient(top,  #2c539e 0%, #2c539e 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#2c539e), color-stop(100%,#2c539e)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #2c539e 0%,#2c539e 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #2c539e 0%,#2c539e 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #2c539e 0%,#2c539e 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #2c539e 0%,#2c539e 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2c539e', endColorstr='#2c539e',GradientType=0 ); /* IE6-9 */
+
+    height: 100%;
+
+    font-family: 'Roboto', sans-serif;
+}
+
+html{
+    height: 100%;
+}
+
+.red-text {
+    color: red;
+}
+
+.green-text {
+    color: green;
+}
+
+.white-text {
+    color: white;
+}
+
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+::-webkit-scrollbar-button {
+    width: 0px;
+    height: 0px;
+}
+::-webkit-scrollbar-thumb {
+    background: #e1e1e1;
+    border: 0px none #ffffff;
+    border-radius: 50px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #ffffff;
+}
+::-webkit-scrollbar-thumb:active {
+    background: #000000;
+}
+::-webkit-scrollbar-track {
+    background: #2c5089;
+    border: 0px none #ffffff;
+    border-radius: 50px;
+}
+::-webkit-scrollbar-track:hover {
+    background: #666666;
+}
+::-webkit-scrollbar-track:active {
+    background: #333333;
+}
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
