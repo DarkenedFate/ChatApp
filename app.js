@@ -2,8 +2,11 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var moment = require('moment');
+var tz = require('moment-timezone');
+var Autolinker = require('autolinker');
 
-app.get('/robotochat', function(req, res) {
+app.get('/robotochat', function (req, res) {
     res.sendFile(__dirname + "/index.html");
 });
 
@@ -17,23 +20,75 @@ console.log(__dirname);
 
 http.listen(8080);
 
-io.on('connection', function(socket) {
+
+var users = [];
+var userSockets = [];
+
+io.on('connection', function (socket) {
 
     var name = '';
 
-    socket.on('username', function(username){
+    socket.on('username', function (username) {
         name = username;
-    })
-
-    socket.on('disconnect', function() {
-        console.log('user disconnected');
+        users.push(name);
+        userSockets[username] = socket;
     });
 
-    socket.on('chat message', function(msg) {
-         io.emit('chat message', "[" + name + " " + "] " + msg);
+    socket.on('disconnect', function () {
+        io.emit('server message', "[Server] " + name + " has disconnected");
+
+        var index = users.indexOf(name);
+        if (index > -1) {
+            users.splice(index, 1);
+        }
+
+        io.emit('users', users);
     });
 
-    socket.on('server message', function(msg) {
+    socket.on('chat message', function (msg) {
+        var now = moment().tz('America/New_York').format("hh:mm:ss A");
+        io.emit('chat message', "[" + name + " " + now + "] " + Autolinker.link(msg));
+    });
+
+    socket.on('users', function () {
+        io.emit('users', users);
+    });
+
+    socket.on('server message', function (msg) {
         io.emit('server message', msg);
+    });
+
+    socket.on('user typing', function () {
+        io.emit('user typing', name + " is typing...", name);
+    });
+
+    socket.on('done typing', function () {
+        io.emit('done typing', name);
+    });
+
+    socket.on('emote', function (msg) {
+        io.emit('emote', msg, name);
+    });
+
+    socket.on('change name', function (newName) {
+        io.emit('server message', "[Server] " + name + " has changed their name to " + newName);
+
+        var index = users.indexOf(name);
+        if (index > -1) {
+            users.splice(index, 1);
+        }
+        users.push(newName);
+        io.emit('users', users);
+        userSockets[newName] = userSockets[name];
+        name = newName;
+        io.emit('change name', newName);
+    });
+
+    socket.on('whisper', function(msg, recipient, sender) {
+        if (userSockets[recipient] != null) {
+            userSockets[recipient].emit('whisper', msg, sender);
+        } else {
+            userSockets[sender].emit('error message', recipient + " is offline.");
+        }
     });
 });

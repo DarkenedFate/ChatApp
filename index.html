@@ -20,7 +20,7 @@
     </div>
     <div class="row top-3">
         <div class="col-md-5 col-md-offset-3 top-2">
-            <input class="form-control" type="text" id="name" placeholder="choose a username"/>
+            <input class="form-control" type="text" id="name" maxlength="16" placeholder="choose a username"/>
         </div>
         <div class="col-md-1 top-2">
             <button type="button" class="btn btn-success" id="submit-user">Submit</button>
@@ -32,17 +32,27 @@
     <div class="row top-3 text-center">
         <h1>Welcome to RobotoChat</h1>
     </div>
-    <div class="row">
-        <div class="col-md-11 top-2">
-            <input class="form-control" type="text" id="text" placeholder="start typing..."/>
+    <div class="row top-2">
+        <div class="col-xs-10 white-text" style="font-size: 1.5em; overflow: auto; height: 30em;" id="messages">
+
         </div>
-        <div class="col-md-1 top-2">
-            <button type="button" class="btn btn-success" id="send-msg">Send</button>
+        <div class="col-xs-2 white-text">
+            <h3 style="text-decoration: underline">Online Users</h3>
+            <div id="users" style="font-size: 1.2em;">
+
+            </div>
         </div>
     </div>
-    <div class="row top-2">
-        <div class="col-md-12 white-text" style="font-size: 1.5em; overflow: auto; height: 30em;" id="messages">
-
+    <div class="row">
+        <div class="col-xs-12" style="height: 1.5em;" id="whos-typing">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-11 top-2">
+            <input class="form-control" type="text" id="text" placeholder="start typing..."/>
+        </div>
+        <div class="col-xs-1 top-2">
+            <button type="button" class="btn btn-success" id="send-msg">Send</button>
         </div>
     </div>
 </div>
@@ -53,65 +63,7 @@
 <script src="https://cdn.socket.io/socket.io-1.3.5.js"></script>
 <script src="js/scripts.js"></script>
 <script>
-    var socket = io.connect("http://191.238.32.68:8080");
 
-    var autoScroll = false;
-    var name = '';
-
-    $("#send-msg").click(function() {
-        socket.emit('chat message', $("#text").val());
-        $("#text").val('');
-        return false;
-    });
-    $("#text").keypress(function(event) {
-        if (event.which == 13) {
-            event.preventDefault();
-            socket.emit('chat message', $("#text").val());
-            $("#text").val('');
-            return false;
-        }
-    });
-
-    $("#submit-user").click(function() {
-
-        name = $("#name").val();
-
-        $("#login-container").fadeOut(function() {
-            $("#chat-container").fadeIn();
-        });
-
-        socket.emit('username', name);
-
-        socket.emit('server message', "[Server] " + name + " has joined the chat.");
-        $("#name").val('');
-        return false;
-    });
-
-    $("#name").keypress(function(event) {
-        if (event.which == 13) {
-            event.preventDefault();
-
-            name = $("#name").val();
-
-            $("#login-container").fadeOut(function() {
-                $("#chat-container").fadeIn();
-            });
-            socket.emit('username', name);
-            socket.emit('server message', "[Server] " + name + " has joined the chat.");
-            $("#name").val('');
-            return false;
-        }
-    });
-
-    socket.on('chat message', function(msg) {
-        $("#messages").append("<p>" + msg + "</p>");
-        $("#messages").scrollTop($("#messages")[0].scrollHeight);
-    });
-
-    socket.on('server message', function(msg) {
-        $("#messages").append("<p class='red-text'>" + msg + "</p>");
-        $("#messages").scrollTop($("#messages")[0].scrollHeight);
-    });
 </script>
 </body>
 </html>

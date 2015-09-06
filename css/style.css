@@ -30,6 +30,21 @@ html{
     height: 100%;
 }
 
+ul {
+    list-style-type: none;
+}
+
+a, a:focus {
+    color: #39ffe7;
+    text-decoration: none;
+    transition: color 0.25s;
+}
+
+a:hover {
+    color: #2dc9b6;
+    text-decoration: none;
+}
+
 .red-text {
     color: red;
 }
