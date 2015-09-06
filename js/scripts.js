@@ -40,6 +40,10 @@ textInput.keypress(function (event) {
         if (event.which == 13) { // user pressed enter
             event.preventDefault();
 
+            /****
+             * slash commands
+             */
+
             if (textInput.val().substring(0, 3) == "/me") {
                 socket.emit('emote', textInput.val().substring(3, textInput.val().length));
             } else if (textInput.val().substring(0, 5) == "/name") {
@@ -47,7 +51,7 @@ textInput.keypress(function (event) {
                 var newName = textInput.val().substring(6, textInput.val().length);
                 if (newName.length > 0) {
                     if (regex.test(newName)) {
-                        $("#messages").append("<p style='color: red;'>You may only use alphanumeric" +
+                        $("#messages").append("<p class='clearfix' style='color: red;'>You may only use alphanumeric" +
                         " characters and underscores (_) in your name</p>");
                         textInput.val('');
                         return false;
@@ -58,21 +62,27 @@ textInput.keypress(function (event) {
                     }
                 }
             } else if (textInput.val().substring(0, 5) == "/help") {
-                $("#messages").append("<p style='color: yellow;'>Available Commands:<br/>" +
+                $("#messages").append("<div class='clearfix'><p class='help-msg'>Available Commands:<br/>" +
                 "/help -- displays this message<br/>" +
                 "/name [new name] -- changes your name<br/>" +
-                "/me [msg] -- send an emote</p>");
-                $("#messages").scrollTop($("#messages")[0].scrollHeight);
-            } else if (textInput.val().substring(0, 2) == "/w") {
+                "/me [msg] -- send an emote<br/>" +
+                "/w [name] [msg] or /whisper [name] [msg] -- send a message to a specific user</p></div>");
+                scrollToBottom();
+            } else if (textInput.val().toLowerCase().substring(0, 2) == "/w"
+                || textInput.val().toLowerCase().substring(0, 8) == "/whisper") {
+
                 var command = textInput.val().split(" ");
                 var recipient = command[1];
                 var msg = command.slice(2, command.length);
 
                 socket.emit('whisper', msg.join(" "), recipient, myName);
-                $("#messages").append("<p style='color: mediumpurple;'>To " + recipient + ": " + msg.join(" ") + "</p>");
+                $("#messages").append("<div class='clearfix'><p class='name-from-me'>To: " + recipient
+                + "</p></div>" + "<div class='clearfix'><p class='from-me-whisper' style='color: #000000;'>"
+                + msg.join(" ") + "</p></div>");
 
+                scrollToBottom();
             } else {
-                socket.emit('chat message', textInput.val());
+                socket.emit('chat message', textInput.val(), myName);
             }
 
             socket.emit('done typing');
@@ -94,7 +104,7 @@ $("#submit-user").click(function () {
 
     socket.emit('username', myName);
     socket.emit('users');
-    socket.emit('server message', "[Server] " + myName + " has joined the chat.");
+    socket.emit('server message', myName + " has joined the chat.");
     $("#name").val('');
     return false;
 });
@@ -116,7 +126,7 @@ $("#name").keypress(function (event) {
         });
         socket.emit('username', myName);
         socket.emit('users');
-        socket.emit('server message', "[Server] " + myName + " has joined the chat.");
+        socket.emit('server message', myName + " has joined the chat.");
         $("#name").val('');
         return false;
     }
@@ -128,20 +138,34 @@ $("#name").keypress(function (event) {
 
 });
 
-socket.on('chat message', function (msg) {
-    $("#messages").append("<p>" + msg + "</p>");
-    $("#messages").scrollTop($("#messages")[0].scrollHeight);
+socket.on('chat message', function (msg, name) {
+    console.log("myname: " + myName);
+    console.log("name: " + name);
+    if (myName != name) {
+        $("#messages").append("<div class='clearfix'><p class='name-from-them'>" + name
+        + "</p><br/></div><div class='clearfix'><p class='from-them'>" + msg + "</p></div>");
+    } else {
+        $("#messages").append("<div class='clearfix'><p class='name-from-me'>" + myName
+        + "</p><br/></div><div class='clearfix'><p class='from-me'>" + msg + "</p></div>");
+    }
+    scrollToBottom();
 });
 
 socket.on('server message', function (msg) {
-    $("#messages").append("<p class='red-text'>" + msg + "</p>");
-    $("#messages").scrollTop($("#messages")[0].scrollHeight);
+    $("#messages").append("<div class='clearfix'><p class='name-from-them'>[SERVER]</p></div>"
+    + "<div class='clearfix'><p class='server-msg red-text'>" + msg + "</p></div>");
+
+    scrollToBottom();
 });
 
 socket.on('users', function (data) {
     $("#users").html('');
     $.each(data, function (index, value) {
-        $("#users").append("<p>" + value + "</p>");
+        $("#users").append("<p><a href='#' id='whisper-" + value + "'>" + value + "</a></p>");
+        $("#whisper-" + value).click(function () {
+            $("#text").val('/w ' + value + " ");
+            $("#text").focus();
+        });
     });
 });
 
@@ -157,19 +181,21 @@ socket.on('done typing', function (name) {
 
 socket.on('emote', function (msg, name) {
     $("#messages").append("<p style='color: orange;'>" + name + " " + msg + "</p>");
-    $("#messages").scrollTop($("#messages")[0].scrollHeight);
+    scrollToBottom();
 });
 
-socket.on('change name', function(name) {
+socket.on('change name', function (name) {
     //myName = name;
 });
 
-socket.on('whisper', function(msg, sender){
-    $("#messages").append("<p style='color: mediumpurple;'>Whisper from " + sender + ": " + msg + "</p>");
+socket.on('whisper', function (msg, sender) {
+    $("#messages").append("<div class='clearfix'><p class='name-from-them'>" + sender + " (Whisper)</p></div>" +
+    "<div class='clearfix'><p class='from-them-whisper' style='color: #ffffff;'>" + msg + "</p></div> ");
+    scrollToBottom();
 });
 
-socket.on('error message', function(msg) {
-    $("#messages").append("<p style='color: red;'>" + msg + "</p>");
+socket.on('error message', function (msg) {
+    $("#messages").append("<div class='clearfix'><p class='warning-msg'>" + msg + "</p></div>");
 });
 
 function getAllIndexes(arr, val) {
@@ -180,11 +206,25 @@ function getAllIndexes(arr, val) {
     return indexes;
 }
 
+function getTimezoneName() {
+    var timezone = jstz.determine();
+    return timezone.name();
+}
+
+function scrollToBottom() {
+    $("#messages").scrollTop($("#messages")[0].scrollHeight);
+}
+
 /*************
  * jQuery section
  */
 
+
 $(function () {
     $("#chat-container").hide();
     $("#name").focus();
+
+    var timezoneName = getTimezoneName();
+    socket.emit('timezone', timezoneName);
+
 });

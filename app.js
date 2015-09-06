@@ -5,6 +5,7 @@ var io = require('socket.io')(http);
 var moment = require('moment');
 var tz = require('moment-timezone');
 var Autolinker = require('autolinker');
+var jstz = require('./js/jstz.js').jstz;
 
 app.get('/robotochat', function (req, res) {
     res.sendFile(__dirname + "/index.html");
@@ -27,6 +28,7 @@ var userSockets = [];
 io.on('connection', function (socket) {
 
     var name = '';
+    var timezoneName = '';
 
     socket.on('username', function (username) {
         name = username;
@@ -35,7 +37,7 @@ io.on('connection', function (socket) {
     });
 
     socket.on('disconnect', function () {
-        io.emit('server message', "[Server] " + name + " has disconnected");
+        io.emit('server message', name + " has disconnected");
 
         var index = users.indexOf(name);
         if (index > -1) {
@@ -46,8 +48,9 @@ io.on('connection', function (socket) {
     });
 
     socket.on('chat message', function (msg) {
-        var now = moment().tz('America/New_York').format("hh:mm:ss A");
-        io.emit('chat message', "[" + name + " " + now + "] " + Autolinker.link(msg));
+        var now = moment().tz("America/New_York").format("hh:mm:ss A");
+        //"[" + name + " " + now + "] " +
+        io.emit('chat message', Autolinker.link(msg), name);
     });
 
     socket.on('users', function () {
@@ -71,7 +74,7 @@ io.on('connection', function (socket) {
     });
 
     socket.on('change name', function (newName) {
-        io.emit('server message', "[Server] " + name + " has changed their name to " + newName);
+        io.emit('server message', name + " has changed their name to " + newName);
 
         var index = users.indexOf(name);
         if (index > -1) {
@@ -90,5 +93,9 @@ io.on('connection', function (socket) {
         } else {
             userSockets[sender].emit('error message', recipient + " is offline.");
         }
+    });
+
+    socket.on('timezone', function(timezone) {
+        timezoneName = timezone;
     });
 });
