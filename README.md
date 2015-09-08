@@ -1,6 +1,10 @@
-# ChatApp
+# RobotoChat
 
-(Currently Unnamed Chat App) is a real-time chat application created using Node.js and socket.io.
+RobotoChat is a real-time chat application created using Node.js, Express framework, and socket.io.
 
-You can use it at the [Currently Unnamed Chat App Website](http://callme.cloudapp.net/robotochat)
+You can use it at the [RobotoChat website](http://callme.cloudapp.net/robotochat).
 
+## Features
+* Clean, modern UI
+* Private messaging
+* 100% anonymous, no logs are ever stored
