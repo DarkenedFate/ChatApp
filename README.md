@@ -2,7 +2,7 @@
 
 RobotoChat is a real-time chat application created using Node.js, Express framework, and socket.io.
 
-You can use it at the [RobotoChat website](http://callme.cloudapp.net/robotochat).
+You can use it at the [RobotoChat website](http://jtmiles.xyz/robotochat).
 
 ## Features
 * Clean, modern UI
